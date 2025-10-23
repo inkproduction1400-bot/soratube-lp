@@ -34,9 +34,11 @@
     }
 
     .reel .item{
+      position:relative;
       flex:0 0 var(--item-w); width:var(--item-w); aspect-ratio:9/16;
       border-radius:.75rem; overflow:hidden; background:#000; margin-right:12px;
     }
+    .reel .item:last-child{ margin-right:0; }
 
     /* エッジをフェード */
     .reel{
@@ -45,7 +47,16 @@
     }
 
     /* 黒画回避のための余白除去 */
-    .reel video{ display:block; }
+    .reel video{ display:block; width:100%; height:100%; object-fit:cover; }
+
+    /* 遅延読み込み中の簡易スケルトン */
+    .item::before{
+      content:""; position:absolute; inset:0;
+      background:linear-gradient(90deg,#111 0%,#222 40%,#111 80%);
+      animation:shine 1.1s linear infinite; opacity:.55; transition:opacity .25s;
+    }
+    .item.ready::before{ opacity:0; animation:none; }
+    @keyframes shine{ 0%{transform:translateX(-30%)} 100%{transform:translateX(30%)} }
   </style>
 
   <script>
@@ -265,8 +276,7 @@
     // 年号
     (function(){ const y=document.getElementById('y'); if(y) y.textContent=new Date().getFullYear(); })();
 
-    // ===== 方法B：/Video/clip01.mp4 ～ clip020.mp4 を使用 =====
-    // ※ 010〜020 のように 3桁ゼロ埋めで保存されている前提
+    // ===== /Video/clip01.mp4 ～ clip020.mp4 を使用（リストは現状ファイル名に合わせて明示） =====
     const reelSrcs = [
       'Video/clip01.mp4','Video/clip02.mp4','Video/clip03.mp4','Video/clip04.mp4','Video/clip05.mp4',
       'Video/clip06.mp4','Video/clip07.mp4','Video/clip08.mp4','Video/clip09.mp4','Video/clip010.mp4',
@@ -274,6 +284,7 @@
       'Video/clip016.mp4','Video/clip017.mp4','Video/clip018.mp4','Video/clip019.mp4','Video/clip020.mp4'
     ];
 
+    // タイル生成（ここでは source[data-src] のみを差し込み＝遅延読込）
     function buildReel(){
       const track=document.querySelector('.reel .track');
       if(!track) return;
@@ -282,53 +293,77 @@
       const mk=(src)=>{
         const wrap=document.createElement('div'); wrap.className='item';
         const v=document.createElement('video');
+        v.muted = true; v.defaultMuted = true;
+        v.playsInline = true; v.setAttribute('playsinline',''); v.setAttribute('webkit-playsinline','');
+        v.autoplay = true; v.loop = true; v.preload = 'metadata';
+        v.style.width='100%'; v.style.height='100%'; v.style.objectFit='cover';
 
-        // autoplayポリシーを確実に通す順序（先にフラグ、後でsrc）
-        v.muted = true;
-        v.defaultMuted = true;
-        v.playsInline = true;
-        v.setAttribute('playsinline','');
-        v.setAttribute('webkit-playsinline','');
-        v.autoplay = true;
-        v.loop = true;
-        v.preload = 'metadata';
+        // 遅延読込：今は data-src に保持
+        const s=document.createElement('source');
+        s.type='video/mp4';
+        s.dataset.src = src;
+        v.appendChild(s);
 
-        v.style.width='100%';
-        v.style.height='100%';
-        v.style.objectFit='cover';
+        // 再生は canplay 以降（黒画面を最小化）
+        v.addEventListener('canplay', ()=>{
+          wrap.classList.add('ready');
+          v.play().catch(()=>{});
+        });
 
-        // src は最後に設定
-        v.src = src;
-
-        // 初回フレームを確実に描画
-        const tryPlay = ()=> v.play().catch(()=>{});
-        v.addEventListener('loadedmetadata', tryPlay, {once:true});
-        v.addEventListener('canplay', tryPlay, {once:true});
+        // ログ（デバッグ用）
         v.addEventListener('error', ()=>console.warn('Video error:', src, v.error));
 
         wrap.appendChild(v);
         return wrap;
       };
 
-      // 1シーケンス
       const seq = reelSrcs.map(mk);
-      // [A…][A…] で継ぎ目ゼロ
-      seq.forEach(el=>track.appendChild(el.cloneNode(true)));
-      seq.forEach(el=>track.appendChild(el.cloneNode(true)));
-
-      // 画面内のみ再生して初期黒を減らす
-      const io = new IntersectionObserver((ents)=>{
-        ents.forEach(e=>{
-          const vid = e.target.querySelector('video');
-          if(!vid) return;
-          if(e.isIntersecting) vid.play().catch(()=>{});
-          else vid.pause();
-        });
-      }, {root: document.querySelector('.reel'), threshold: 0.01});
-      Array.from(track.children).forEach(it=>io.observe(it));
+      // 無限ループ用に2セット＋先頭数枚
+      const append = (arr)=>arr.forEach(el=>track.appendChild(el.cloneNode(true)));
+      append(seq); append(seq);
+      for(let i=0;i<4 && i<seq.length;i++) track.appendChild(seq[i].cloneNode(true));
     }
 
-    // シームレス無限スクロール（現在の1/3速度設定を踏襲）
+    // 可視域のみロード＆再生
+    function setupLazyLoading(){
+      const reel = document.querySelector('.reel');
+      const track = document.querySelector('.reel .track');
+      if(!reel || !track) return;
+
+      const io = new IntersectionObserver((entries)=>{
+        entries.forEach(entry=>{
+          const item = entry.target;
+          const v = item.querySelector('video');
+          const s = v && v.querySelector('source');
+          if(!v || !s) return;
+
+          if(entry.isIntersecting){
+            // 初回ロード
+            if(s.dataset.src && !s.src){
+              s.src = s.dataset.src;
+              v.load(); // → canplay で play()
+            }else{
+              v.play().catch(()=>{});
+            }
+          }else{
+            // 画面外は停止してデコード負荷を下げる
+            v.pause();
+          }
+        });
+      }, { root: reel, rootMargin: '200px', threshold: 0.01 });
+
+      Array.from(track.children).forEach(el=>io.observe(el));
+
+      // タブ非表示時は一時停止
+      document.addEventListener('visibilitychange', ()=>{
+        document.querySelectorAll('.reel video').forEach(v=>{
+          if(document.hidden) v.pause();
+          else v.play().catch(()=>{});
+        });
+      });
+    }
+
+    // シームレス無限スクロール（現行スピード維持）
     function startTicker(){
       const track=document.querySelector('.reel .track');
       if(!track) return;
@@ -336,30 +371,34 @@
       let x=0, last=performance.now();
       const SPEED=(window.innerWidth<=480?275:300); // px/sec
 
-      // 1シーケンス（半分）の幅
-      const halfWidth = Array.from(track.children)
-        .slice(0, track.children.length/2)
-        .reduce((sum,el)=> sum + el.getBoundingClientRect().width + 12, 0); // 12px gap
-
-      let running=true;
-      const reel=document.querySelector('.reel');
-      reel.addEventListener('mouseenter',()=>running=false);
-      reel.addEventListener('mouseleave',()=>{running=true; last=performance.now();});
+      function measureHalfWidth(){
+        const half = Math.floor(track.children.length/2);
+        let sum=0;
+        for(let i=0;i<half;i++){
+          const el=track.children[i];
+          sum += el.getBoundingClientRect().width + 12; // 12px gap
+        }
+        return sum;
+      }
+      let halfWidth = 0;
+      const recalc = ()=>{ halfWidth = measureHalfWidth(); };
+      recalc();
+      window.addEventListener('resize', recalc);
 
       function raf(now){
         const dt=(now-last)/1000; last=now;
-        if(running){
-          x -= SPEED*dt;
-          if(-x >= halfWidth) x += halfWidth; // 継ぎ目ゼロで巻き戻し
-          track.style.transform=`translate3d(${x}px,0,0)`;
-        }
+        x -= SPEED*dt;
+        if(-x >= halfWidth) x += halfWidth; // 継ぎ目ゼロ
+        track.style.transform=`translate3d(${x}px,0,0)`;
         requestAnimationFrame(raf);
       }
       requestAnimationFrame(raf);
     }
 
     document.addEventListener('DOMContentLoaded', ()=>{
+      (function(){ const y=document.getElementById('y'); if(y) y.textContent=new Date().getFullYear(); })();
       buildReel();
+      setupLazyLoading();
       startTicker();
     });
   </script>
