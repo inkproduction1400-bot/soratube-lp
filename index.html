@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>SoraTube｜AI動画エンタメプラットフォーム – 1000本以上が登録不要・無料で見放題</title>
+  <meta name="description" content="SoraTubeはAI動画エンタメの新しい遊び場。TikTokでは投稿できない尖った作品も視聴OK。1000本以上の動画を登録不要・無料で楽しめます。無料提供のため広告表示にご協力ください。" />
+  <meta name="format-detection" content="telephone=no" />
+  <meta name="theme-color" content="#111827" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    :root{
+      --ink:#0ea5e9; --ink-deep:#0b78a8;
+      --hero-from:#fde047; --hero-to:#fb923c;
+      --purple:#8b5cf6; --green:#22c55e;
+    }
+    html,body{font-family:'Noto Sans JP',system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";}
+    .glass{backdrop-filter:saturate(160%) blur(8px); background:rgba(255,255,255,.15);}
+    .safe-bottom{padding-bottom:max(env(safe-area-inset-bottom),16px)}
+    .safe-top{padding-top:max(env(safe-area-inset-top),12px)}
+    .shadow-soft{box-shadow:0 10px 30px rgba(0,0,0,.12)}
+
+    /* —— Reel (横スクロール動画) ——————————————— */
+    .reel{ --item-w: 32vw !important; }
+    @media (min-width:480px){ .reel{ --item-w: 28vw !important; } }
+
+    .reel .track{
+      display:flex; will-change:transform;
+      transform:translate3d(0,0,0);
+    }
+
+    .reel .item{
+      flex:0 0 var(--item-w); width:var(--item-w); aspect-ratio:9/16;
+      border-radius:.75rem; overflow:hidden; background:#000; margin-right:12px;
+    }
+
+    /* エッジをフェード */
+    .reel{
+      -webkit-mask-image:linear-gradient(to right, transparent 0, #000 20px, #000 calc(100% - 20px), transparent 100%);
+              mask-image:linear-gradient(to right, transparent 0, #000 20px, #000 calc(100% - 20px), transparent 100%);
+    }
+
+    /* 黒画回避のための余白除去 */
+    .reel video{ display:block; }
+  </style>
+
+  <script>
+    // アンカーのスムーススクロール
+    document.addEventListener('click', (e)=>{
+      const a = e.target.closest('a[href^="#"]');
+      if(!a) return;
+      const el = document.querySelector(a.getAttribute('href'));
+      if(!el) return;
+      e.preventDefault();
+      el.scrollIntoView({behavior:'smooth', block:'start'});
+    });
+  </script>
+
+  <!-- OG / Twitter -->
+  <meta property="og:title" content="SoraTube｜AI動画エンタメ – 1000本以上が登録不要・無料" />
+  <meta property="og:description" content="TikTokに投稿できない尖ったAI動画もOK。SoraTubeは広告で無料提供中。視聴協力に感謝！" />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="https://soratube.tokyo" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <script type="application/ld+json">{
+    "@context":"https://schema.org","@type":"WebSite","name":"SoraTube","url":"https://sora-tube.vercel.app/",
+    "potentialAction":{"@type":"SearchAction","target":"https://sora-tube.vercel.app/?q={search_term_string}","query-input":"required name=search_term_string"}
+  }</script>
+</head>
+
+<body class="bg-[#fff7ed] text-slate-900">
+  <!-- Hero -->
+  <header class="relative min-h-[88vh] flex flex-col justify-between overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-b from-[var(--hero-from)] to-[var(--hero-to)]"></div>
+    <div class="absolute inset-0 opacity-[.12]" aria-hidden="true">
+      <svg class="w-full h-full" viewBox="0 0 375 667" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs><linearGradient id="g" x1="0" x2="1" y1="0" y2="1">
+          <stop offset="0" stop-color="#000" stop-opacity=".4"/><stop offset="1" stop-color="#000" stop-opacity="0"/></linearGradient></defs>
+        <rect x="-50" y="-50" width="475" height="767" fill="url(#g)"/>
+      </svg>
+    </div>
+
+    <div class="relative z-10 safe-top px-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <div class="h-9 w-9 rounded-lg bg-black/80 grid place-items-center text-white font-black">S</div>
+          <span class="font-black tracking-tight text-lg"><span class="text-white">Sora</span><span class="text-pink-500">Tube</span></span>
+        </div>
+        <nav class="text-sm flex items-center gap-3">
+          <a href="#features" class="underline/20 hover:underline">特徴</a>
+          <a href="#faq" class="underline/20 hover:underline">FAQ</a>
+          <a href="https://soratube.tokyo" class="rounded-full px-3 py-1.5 bg-black text-white">サイトへ</a>
+        </nav>
+      </div>
+    </div>
+
+    <div class="relative z-10 px-5 mt-8">
+      <p class="text-center text-[11px] tracking-widest font-semibold leading-relaxed mb-2">AI動画エンタメの新体験</p>
+
+      <h1 class="mt-1 text-center text-4xl font-black leading-[1.1] tracking-tight">
+        <span class="block mb-3"><span class="text-white">Sora</span><span class="text-pink-500">Tube</span></span>
+        <span class="block text-[22px] mt-0 leading-snug">
+            ここにしかない <span class="text-red-500 font-extrabold">攻めた</span> 作品を<br>無料で見放題！
+        </span>
+      </h1>
+
+      <p class="mt-4 text-center text-[15px] font-medium">
+        TikTokでは投稿できないような表現性の高いAI動画も視聴OK。
+        <span class="whitespace-nowrap">登録不要・無料</span>で楽しめます。
+      </p>
+
+      <div class="mt-5 flex justify-center gap-2 flex-wrap">
+        <span class="px-3 py-1 rounded-full bg-white/70 text-[12px] font-bold shadow-soft">動画 <span class="text-[15px]">1000+</span> 本</span>
+        <span class="px-3 py-1 rounded-full bg-white/70 text-[12px] font-bold shadow-soft">登録不要</span>
+        <span class="px-3 py-1 rounded-full bg-white/70 text-[12px] font-bold shadow-soft">完全無料</span>
+      </div>
+
+      <div class="mt-6 grid gap-3">
+        <a href="https://soratube.tokyo" class="w-full rounded-2xl py-4 text-center text-white text-[17px] font-bold shadow-soft active:scale-[.99]" style="background:var(--green)">今すぐ無料で見る</a>
+      </div>
+
+      <div class="mt-4 text-[12px] text-center opacity-90">※ 一部の作品は年齢制限または注意喚起を設けています</div>
+
+      <!-- horizontal video reel -->
+      <div class="mt-3 -mx-5">
+        <div class="reel relative overflow-hidden">
+          <div class="track py-2"><!-- items are injected by JS --></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="relative z-30 px-5 pb-6">
+      <div class="mt-7 p-3 rounded-2xl glass text-white shadow-soft">
+        <p class="text-[12px] leading-snug"><span class="font-bold">無料提供のため広告を表示</span>しています。運営コストをまかなうため、
+        動画の合間や画面下部に広告が流れることがあります。<span class="font-semibold">視聴協力に感謝します。</span>広告は年齢に配慮した一般向けのもののみを選定しています。</p>
+      </div>
+    </div>
+  </header>
+
+  <!-- Categories -->
+  <section id="categories" class="px-4 py-8 bg-white rounded-t-[24px] mt-0 relative z-20 shadow-soft">
+    <h2 class="text-xl font-extrabold">人気ジャンル</h2>
+    <div class="mt-3 overflow-x-auto -mx-2 px-2">
+      <div class="flex gap-2 min-w-max">
+        <a class="px-3 py-2 rounded-full bg-slate-100 text-sm font-semibold" href="https://soratube.tokyo">新着</a>
+        <a class="px-3 py-2 rounded-full bg-slate-100 text-sm font-semibold" href="https://soratube.tokyo">おすすめ</a>
+        <a class="px-3 py-2 rounded-full bg-slate-100 text-sm font-semibold" href="https://soratube.tokyo">女子アナ</a>
+        <a class="px-3 py-2 rounded-full bg-slate-100 text-sm font-semibold" href="https://soratube.tokyo">JK</a>
+        <a class="px-3 py-2 rounded-full bg-slate-100 text-sm font-semibold" href="https://soratube.tokyo">ギャル</a>
+        <a class="px-3 py-2 rounded-full bg-slate-100 text-sm font-semibold" href="https://soratube.tokyo">看護師</a>
+      </div>
+    </div>
+
+    <div class="mt-5 grid gap-3">
+      <div class="p-4 rounded-2xl bg-indigo-50">
+        <p class="text-[12px] font-semibold text-indigo-600">PICK</p>
+        <h3 class="mt-1 font-extrabold">最新の話題作</h3>
+        <p class="text-[13px] text-slate-600 mt-1">TikTokで人気ジャンルを厳選。チラリズムや擬似体験型など豊富なジャンルで貴方の心を満たします。</p>
+        <a class="mt-3 inline-flex items-center gap-2 text-indigo-700 font-bold" href="https://soratube.tokyo">見る ▶</a>
+      </div>
+      <div class="p-4 rounded-2xl bg-emerald-50">
+        <p class="text-[12px] font-semibold text-emerald-600">NEW</p>
+        <h3 class="mt-1 font-extrabold">毎日追加</h3>
+        <p class="text-[13px] text-slate-600 mt-1">作品は日々アップデート。1000本以上のアーカイブからお気に入りを発見。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section id="features" class="px-4 py-10">
+    <h2 class="text-xl font-extrabold">SoraTubeが選ばれる理由</h2>
+    <div class="mt-4 grid gap-4">
+      <article class="p-4 rounded-2xl bg-white shadow-soft">
+        <h3 class="font-bold text-[16px]">登録不要・完全無料</h3>
+        <p class="text-[13px] text-slate-600 mt-1">アプリ登録やメールアドレスは不要。いますぐタップで視聴開始。無料提供を続けるため広告表示にご協力ください。</p>
+      </article>
+      <article class="p-4 rounded-2xl bg-white shadow-soft">
+        <h3 class="font-bold text-[16px]">TikTokでは出会えない作品性</h3>
+        <p class="text-[13px] text-slate-600 mt-1">プラットフォームの規定で載せづらい尖った表現・実験作も楽しめます。<span class="font-semibold">過度なアダルト表現の演出はしません</span>が、刺激的な表現が含まれる場合があります。</p>
+      </article>
+      <article class="p-4 rounded-2xl bg-white shadow-soft">
+        <h3 class="font-bold text-[16px]">1000本以上のAI動画</h3>
+        <p class="text-[13px] text-slate-600 mt-1">短尺のアイデア集から世界観重視のミニ映画まで幅広くラインナップ。キーワード検索・タグ巡回で深掘りできます。</p>
+      </article>
+    </div>
+
+    <div class="mt-6 text-center">
+      <a href="https://soratube.tokyo" class="inline-block rounded-2xl px-6 py-3 text-white font-bold shadow-soft" style="background:linear-gradient(90deg,var(--ink),var(--ink-deep))">サイトで作品をみる</a>
+    </div>
+  </section>
+
+  <!-- Ads -->
+  <section id="ads" class="px-4 py-8 bg-white">
+    <h2 class="text-xl font-extrabold">無料提供と広告について</h2>
+    <div class="mt-3 space-y-3 text-[13px] text-slate-700">
+      <p>運営コストを抑え、すべての人に開かれたエンタメを実現するため、SoraTubeは広告によって無料提供しています。視聴中に広告が表示されることがありますが、<span class="font-semibold">皆さまの視聴協力が作品発掘と運営継続のチカラになります。</span></p>
+      <ul class="list-disc pl-5 space-y-1">
+        <li>年齢配慮の一般向け広告のみを選定</li>
+        <li>過度なポップアップや誤タップ誘導は避けます</li>
+        <li>ご意見はフッターの「お問い合わせ」へ</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq" class="px-4 py-10">
+    <h2 class="text-xl font-extrabold">よくある質問</h2>
+    <div class="mt-4 divide-y divide-slate-200 bg-white rounded-2xl shadow-soft">
+      <details class="p-4 group" open>
+        <summary class="font-bold text-[15px] cursor-pointer">本当に登録不要・無料？</summary>
+        <p class="mt-2 text-[13px] text-slate-600">はい。会員登録なしで視聴できます。無料提供のため広告表示にご協力ください。</p>
+      </details>
+      <details class="p-4 group">
+        <summary class="font-bold text-[15px] cursor-pointer">どんな動画が見られますか？</summary>
+        <p class="mt-2 text-[13px] text-slate-600">AI生成やAI強化によるクリエイティブ作品を中心に、ショート/ミニ映画/ミュージック映像など多彩。TikTokには載せづらい実験的・攻めた作風も楽しめます。</p>
+      </details>
+      <details class="p-4 group">
+        <summary class="font-bold text-[15px] cursor-pointer">年齢制限はありますか？</summary>
+        <p class="mt-2 text-[13px] text-slate-600">作品により年齢ガイドを設けています。公序良俗に反する過度なアダルト表現は掲載しません。</p>
+      </details>
+      <details class="p-4 group">
+        <summary class="font-bold text-[15px] cursor-pointer">どこから視聴できますか？</summary>
+        <p class="mt-2 text-[13px] text-slate-600">「今すぐ無料で見る」ボタン、またはフッターの公式サイトリンクからご覧いただけます。</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- Footer / CTA -->
+  <footer class="px-4 pb-28">
+    <div class="p-4 rounded-2xl bg-slate-900 text-white">
+      <h3 class="font-extrabold">SoraTubeをホーム画面に追加</h3>
+      <p class="text-[13px] mt-1 text-slate-200">ブラウザの共有メニューから「ホーム画面に追加」でアプリのように使えます。</p>
+      <a href="https://soratube.tokyo/" class="inline-block mt-3 px-4 py-2 rounded-xl bg-white text-slate-900 font-bold">今すぐ試す</a>
+    </div>
+
+    <div class="mt-6 text-center text-[12px] text-slate-500">
+      <a class="underline hover:no-underline" href="https://soratube.tokyo">公式サイト</a>
+      <span class="mx-2">/</span>
+      <a class="underline hover:no-underline" href="#ads">広告について</a>
+      <span class="mx-2">/</span>
+      <a class="underline hover:no-underline" href="mailto:info@example.com">お問い合わせ</a>
+      <p class="mt-2">© <span id="y"></span> SoraTube</p>
+    </div>
+  </footer>
+
+  <!-- Sticky CTA Bar -->
+  <div class="fixed left-0 right-0 bottom-0 z-50">
+    <div class="safe-bottom bg-white/95 border-t border-slate-200 backdrop-blur-xl px-4">
+      <div class="py-3 flex items-center gap-3">
+        <div class="flex-1">
+          <div class="text-[12px] text-slate-500 leading-none">登録不要・無料</div>
+          <div class="text-[15px] font-extrabold leading-tight">今すぐ視聴をはじめる</div>
+        </div>
+        <a href="https://soratube.tokyo" class="px-5 py-3 rounded-xl text-white font-bold shadow-soft" style="background:linear-gradient(90deg,var(--purple),var(--green))">視聴する</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script>
+    // 年号
+    (function(){ const y=document.getElementById('y'); if(y) y.textContent=new Date().getFullYear(); })();
+
+    // ===== 方法B：/Video/clip01.mp4 ～ clip020.mp4 を使用 =====
+    // ※ 010〜020 のように 3桁ゼロ埋めで保存されている前提
+    const reelSrcs = [
+      'Video/clip01.mp4','Video/clip02.mp4','Video/clip03.mp4','Video/clip04.mp4','Video/clip05.mp4',
+      'Video/clip06.mp4','Video/clip07.mp4','Video/clip08.mp4','Video/clip09.mp4','Video/clip010.mp4',
+      'Video/clip011.mp4','Video/clip012.mp4','Video/clip013.mp4','Video/clip014.mp4','Video/clip015.mp4',
+      'Video/clip016.mp4','Video/clip017.mp4','Video/clip018.mp4','Video/clip019.mp4','Video/clip020.mp4'
+    ];
+
+    function buildReel(){
+      const track=document.querySelector('.reel .track');
+      if(!track) return;
+      track.innerHTML='';
+
+      const mk=(src)=>{
+        const wrap=document.createElement('div'); wrap.className='item';
+        const v=document.createElement('video');
+
+        // autoplayポリシーを確実に通す順序（先にフラグ、後でsrc）
+        v.muted = true;
+        v.defaultMuted = true;
+        v.playsInline = true;
+        v.setAttribute('playsinline','');
+        v.setAttribute('webkit-playsinline','');
+        v.autoplay = true;
+        v.loop = true;
+        v.preload = 'metadata';
+
+        v.style.width='100%';
+        v.style.height='100%';
+        v.style.objectFit='cover';
+
+        // src は最後に設定
+        v.src = src;
+
+        // 初回フレームを確実に描画
+        const tryPlay = ()=> v.play().catch(()=>{});
+        v.addEventListener('loadedmetadata', tryPlay, {once:true});
+        v.addEventListener('canplay', tryPlay, {once:true});
+        v.addEventListener('error', ()=>console.warn('Video error:', src, v.error));
+
+        wrap.appendChild(v);
+        return wrap;
+      };
+
+      // 1シーケンス
+      const seq = reelSrcs.map(mk);
+      // [A…][A…] で継ぎ目ゼロ
+      seq.forEach(el=>track.appendChild(el.cloneNode(true)));
+      seq.forEach(el=>track.appendChild(el.cloneNode(true)));
+
+      // 画面内のみ再生して初期黒を減らす
+      const io = new IntersectionObserver((ents)=>{
+        ents.forEach(e=>{
+          const vid = e.target.querySelector('video');
+          if(!vid) return;
+          if(e.isIntersecting) vid.play().catch(()=>{});
+          else vid.pause();
+        });
+      }, {root: document.querySelector('.reel'), threshold: 0.01});
+      Array.from(track.children).forEach(it=>io.observe(it));
+    }
+
+    // シームレス無限スクロール（現在の1/3速度設定を踏襲）
+    function startTicker(){
+      const track=document.querySelector('.reel .track');
+      if(!track) return;
+
+      let x=0, last=performance.now();
+      const SPEED=(window.innerWidth<=480?275:300); // px/sec
+
+      // 1シーケンス（半分）の幅
+      const halfWidth = Array.from(track.children)
+        .slice(0, track.children.length/2)
+        .reduce((sum,el)=> sum + el.getBoundingClientRect().width + 12, 0); // 12px gap
+
+      let running=true;
+      const reel=document.querySelector('.reel');
+      reel.addEventListener('mouseenter',()=>running=false);
+      reel.addEventListener('mouseleave',()=>{running=true; last=performance.now();});
+
+      function raf(now){
+        const dt=(now-last)/1000; last=now;
+        if(running){
+          x -= SPEED*dt;
+          if(-x >= halfWidth) x += halfWidth; // 継ぎ目ゼロで巻き戻し
+          track.style.transform=`translate3d(${x}px,0,0)`;
+        }
+        requestAnimationFrame(raf);
+      }
+      requestAnimationFrame(raf);
+    }
+
+    document.addEventListener('DOMContentLoaded', ()=>{
+      buildReel();
+      startTicker();
+    });
+  </script>
+</body>
+</html>
